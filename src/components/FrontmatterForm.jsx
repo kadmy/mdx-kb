@@ -2,8 +2,9 @@
  * @file FrontmatterForm.jsx
  * @description Form-based редактор для YAML frontmatter.
  * Заменяет textarea на удобную форму с валидацией.
+ * Финальная схема согласно "Проект Ковчег": метаданные + фасеты.
  */
-import { createSignal, createEffect, For, batch } from 'solid-js';
+import { createSignal, createEffect, batch } from 'solid-js';
 import yaml from 'js-yaml';
 
 /**
@@ -45,18 +46,18 @@ export function FrontmatterForm(props) {
   // Инициализация полей из props.value
   const initialData = parseYAML(props.value);
 
+  // === 1. Основные Метаданные ===
   const [title, setTitle] = createSignal(initialData.title || '');
-  const [author, setAuthor] = createSignal(initialData.author || '');
-  const [created, setCreated] = createSignal(formatDateForInput(initialData.created));
-  const [type, setType] = createSignal(initialData.type || '');
-  const [tags, setTags] = createSignal(initialData.tags || []);
-  const [concepts, setConcepts] = createSignal(initialData.concepts || []);
-  const [terms, setTerms] = createSignal(initialData.terms || []);
+  const [description, setDescription] = createSignal(initialData.description || '');
+  const [date, setDate] = createSignal(formatDateForInput(initialData.date));
+  const [draft, setDraft] = createSignal(initialData.draft !== undefined ? initialData.draft : false);
 
-  // Временные поля для добавления новых элементов
-  const [newTag, setNewTag] = createSignal('');
-  const [newConcept, setNewConcept] = createSignal('');
-  const [newTerm, setNewTerm] = createSignal('');
+  // === 2. Организационные Фасеты ===
+  const [contentType, setContentType] = createSignal(initialData.content_type || '');
+  const [level, setLevel] = createSignal(initialData.level || '');
+  const [series, setSeries] = createSignal(initialData.series || '');
+  const [part, setPart] = createSignal(initialData.part || '');
+  const [origin, setOrigin] = createSignal(initialData.origin || '');
 
   // Флаг для предотвращения циклических обновлений
   let isUpdatingFromProps = false;
@@ -68,16 +69,21 @@ export function FrontmatterForm(props) {
 
     const data = {};
 
+    // === 1. Основные Метаданные ===
     if (title()) data.title = title();
-    if (author()) data.author = author();
-    if (created()) data.created = created();
-    if (type()) data.type = type();
-    if (tags().length > 0) data.tags = tags();
-    if (concepts().length > 0) data.concepts = concepts();
-    if (terms().length > 0) data.terms = terms();
+    if (description()) data.description = description();
+    if (date()) data.date = date();
+    data.draft = draft(); // всегда включаем draft (boolean)
+
+    // === 2. Организационные Фасеты ===
+    if (contentType()) data.content_type = contentType();
+    if (level()) data.level = level();
+    if (series()) data.series = series();
+    if (part()) data.part = parseInt(part()) || undefined; // преобразуем в число
+    if (origin()) data.origin = origin();
 
     // Преобразуем в YAML и отправляем наверх
-    const yamlString = yaml.dump(data, { lineWidth: -1 });
+    const yamlString = yaml.dump(data, { lineWidth: -1, sortKeys: false });
     props.onChange(yamlString);
   });
 
@@ -85,25 +91,29 @@ export function FrontmatterForm(props) {
   createEffect(() => {
     const externalData = parseYAML(props.value);
 
-    // Нормализуем данные для сравнения - преобразуем даты в строки
+    // Нормализуем данные для сравнения
     const normalizedExternal = {
       title: externalData.title || '',
-      author: externalData.author || '',
-      created: formatDateForInput(externalData.created),
-      type: externalData.type || '',
-      tags: externalData.tags || [],
-      concepts: externalData.concepts || [],
-      terms: externalData.terms || [],
+      description: externalData.description || '',
+      date: formatDateForInput(externalData.date),
+      draft: externalData.draft !== undefined ? externalData.draft : false,
+      content_type: externalData.content_type || '',
+      level: externalData.level || '',
+      series: externalData.series || '',
+      part: externalData.part || '',
+      origin: externalData.origin || '',
     };
 
     const currentData = {
       title: title(),
-      author: author(),
-      created: created(),
-      type: type(),
-      tags: tags(),
-      concepts: concepts(),
-      terms: terms(),
+      description: description(),
+      date: date(),
+      draft: draft(),
+      content_type: contentType(),
+      level: level(),
+      series: series(),
+      part: part(),
+      origin: origin(),
     };
 
     // Сравниваем нормализованные данные
@@ -113,12 +123,14 @@ export function FrontmatterForm(props) {
       // Используем batch для группировки всех обновлений в один цикл реактивности
       batch(() => {
         setTitle(normalizedExternal.title);
-        setAuthor(normalizedExternal.author);
-        setCreated(normalizedExternal.created);
-        setType(normalizedExternal.type);
-        setTags(normalizedExternal.tags);
-        setConcepts(normalizedExternal.concepts);
-        setTerms(normalizedExternal.terms);
+        setDescription(normalizedExternal.description);
+        setDate(normalizedExternal.date);
+        setDraft(normalizedExternal.draft);
+        setContentType(normalizedExternal.content_type);
+        setLevel(normalizedExternal.level);
+        setSeries(normalizedExternal.series);
+        setPart(normalizedExternal.part);
+        setOrigin(normalizedExternal.origin);
       });
 
       // Сбрасываем флаг после микрозадачи
@@ -127,43 +139,6 @@ export function FrontmatterForm(props) {
       });
     }
   });
-
-  // Функции для работы с массивами
-  const addTag = () => {
-    const tag = newTag().trim();
-    if (tag && !tags().includes(tag)) {
-      setTags([...tags(), tag]);
-      setNewTag('');
-    }
-  };
-
-  const removeTag = (tagToRemove) => {
-    setTags(tags().filter(t => t !== tagToRemove));
-  };
-
-  const addConcept = () => {
-    const concept = newConcept().trim();
-    if (concept && !concepts().includes(concept)) {
-      setConcepts([...concepts(), concept]);
-      setNewConcept('');
-    }
-  };
-
-  const removeConcept = (conceptToRemove) => {
-    setConcepts(concepts().filter(c => c !== conceptToRemove));
-  };
-
-  const addTerm = () => {
-    const term = newTerm().trim();
-    if (term && !terms().includes(term)) {
-      setTerms([...terms(), term]);
-      setNewTerm('');
-    }
-  };
-
-  const removeTerm = (termToRemove) => {
-    setTerms(terms().filter(t => t !== termToRemove));
-  };
 
   return (
     <div class="frontmatter-form">
@@ -280,6 +255,8 @@ export function FrontmatterForm(props) {
         }
       `}</style>
 
+      {/* === 1. ОСНОВНЫЕ МЕТАДАННЫЕ === */}
+
       {/* Title (required) */}
       <div class="form-group">
         <label class="form-label required">Название</label>
@@ -288,161 +265,124 @@ export function FrontmatterForm(props) {
           class="form-input"
           value={title()}
           onInput={(e) => setTitle(e.currentTarget.value)}
-          placeholder="Название статьи"
+          placeholder="Завет Авраама: Основание веры"
         />
       </div>
 
-      {/* Author */}
+      {/* Description */}
       <div class="form-group">
-        <label class="form-label">Автор</label>
-        <input
-          type="text"
+        <label class="form-label">Описание</label>
+        <textarea
           class="form-input"
-          value={author()}
-          onInput={(e) => setAuthor(e.currentTarget.value)}
-          placeholder="Имя автора"
+          value={description()}
+          onInput={(e) => setDescription(e.currentTarget.value)}
+          placeholder="Краткое описание для SEO и превью"
+          rows="3"
+          style="resize: vertical; font-family: inherit;"
         />
       </div>
 
-      {/* Created Date */}
+      {/* Date */}
       <div class="form-group">
-        <label class="form-label">Дата создания</label>
+        <label class="form-label">Дата</label>
         <input
           type="date"
           class="form-input"
-          value={created()}
-          onInput={(e) => setCreated(e.currentTarget.value)}
+          value={date()}
+          onInput={(e) => setDate(e.currentTarget.value)}
         />
       </div>
 
-      {/* Type */}
+      {/* Draft */}
       <div class="form-group">
-        <label class="form-label">Тип</label>
+        <label class="form-label">Черновик</label>
+        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+          <input
+            type="checkbox"
+            checked={draft()}
+            onChange={(e) => setDraft(e.currentTarget.checked)}
+            style="width: 18px; height: 18px; cursor: pointer;"
+          />
+          <span style="font-size: 0.9rem; color: var(--text-secondary);">
+            Не публиковать (черновик)
+          </span>
+        </label>
+      </div>
+
+      {/* === 2. ОРГАНИЗАЦИОННЫЕ ФАСЕТЫ === */}
+
+      {/* Content Type */}
+      <div class="form-group" style="margin-top: 1.5rem;">
+        <label class="form-label">Тип контента</label>
         <select
           class="form-input"
-          value={type()}
-          onChange={(e) => setType(e.currentTarget.value)}
+          value={contentType()}
+          onChange={(e) => setContentType(e.currentTarget.value)}
         >
           <option value="">Выберите тип</option>
-          <option value="upload">Урок</option>
-          <option value="article">Статья</option>
-          <option value="concept">Концепция</option>
-          <option value="term">Термин</option>
+          <option value="study">Исследование</option>
+          <option value="lecture">Лекция</option>
+          <option value="exegesis">Экзегетика</option>
+          <option value="reference">Справочник</option>
+          <option value="analysis">Анализ/Синтез</option>
+          <option value="qa">Вопрос-Ответ</option>
         </select>
       </div>
 
-      {/* Tags */}
+      {/* Level */}
       <div class="form-group">
-        <label class="form-label">Теги</label>
-        <div class="chips-container">
-          <For each={tags()}>
-            {(tag) => (
-              <span class="chip">
-                {tag}
-                <button
-                  class="chip-remove"
-                  onClick={() => removeTag(tag)}
-                  title="Удалить тег"
-                >
-                  ×
-                </button>
-              </span>
-            )}
-          </For>
-        </div>
-        <div class="add-item-container">
-          <input
-            type="text"
-            class="form-input add-item-input"
-            value={newTag()}
-            onInput={(e) => setNewTag(e.currentTarget.value)}
-            onKeyDown={(e) => e.key === 'Enter' && addTag()}
-            placeholder="Добавить тег"
-          />
-          <button
-            class="add-button"
-            onClick={addTag}
-            disabled={!newTag().trim()}
-          >
-            + Добавить
-          </button>
-        </div>
+        <label class="form-label">Уровень сложности</label>
+        <select
+          class="form-input"
+          value={level()}
+          onChange={(e) => setLevel(e.currentTarget.value)}
+        >
+          <option value="">Выберите уровень</option>
+          <option value="level_1_beginner">Уровень 1: Для начинающих</option>
+          <option value="level_2_foundational">Уровень 2: Основы</option>
+          <option value="level_3_deep_dive">Уровень 3: Глубокое изучение</option>
+          <option value="level_4_academic">Уровень 4: Академический</option>
+        </select>
       </div>
 
-      {/* Concepts */}
+      {/* Series */}
       <div class="form-group">
-        <label class="form-label">Концепции</label>
-        <div class="chips-container">
-          <For each={concepts()}>
-            {(concept) => (
-              <span class="chip">
-                {concept}
-                <button
-                  class="chip-remove"
-                  onClick={() => removeConcept(concept)}
-                  title="Удалить концепцию"
-                >
-                  ×
-                </button>
-              </span>
-            )}
-          </For>
-        </div>
-        <div class="add-item-container">
-          <input
-            type="text"
-            class="form-input add-item-input"
-            value={newConcept()}
-            onInput={(e) => setNewConcept(e.currentTarget.value)}
-            onKeyDown={(e) => e.key === 'Enter' && addConcept()}
-            placeholder="Добавить концепцию"
-          />
-          <button
-            class="add-button"
-            onClick={addConcept}
-            disabled={!newConcept().trim()}
-          >
-            + Добавить
-          </button>
-        </div>
+        <label class="form-label">Серия</label>
+        <input
+          type="text"
+          class="form-input"
+          value={series()}
+          onInput={(e) => setSeries(e.currentTarget.value)}
+          placeholder="Основы Завета (опционально)"
+        />
       </div>
 
-      {/* Terms */}
+      {/* Part */}
       <div class="form-group">
-        <label class="form-label">Термины</label>
-        <div class="chips-container">
-          <For each={terms()}>
-            {(term) => (
-              <span class="chip">
-                {term}
-                <button
-                  class="chip-remove"
-                  onClick={() => removeTerm(term)}
-                  title="Удалить термин"
-                >
-                  ×
-                </button>
-              </span>
-            )}
-          </For>
-        </div>
-        <div class="add-item-container">
-          <input
-            type="text"
-            class="form-input add-item-input"
-            value={newTerm()}
-            onInput={(e) => setNewTerm(e.currentTarget.value)}
-            onKeyDown={(e) => e.key === 'Enter' && addTerm()}
-            placeholder="Добавить термин"
-          />
-          <button
-            class="add-button"
-            onClick={addTerm}
-            disabled={!newTerm().trim()}
-          >
-            + Добавить
-          </button>
-        </div>
+        <label class="form-label">Часть серии</label>
+        <input
+          type="number"
+          class="form-input"
+          value={part()}
+          onInput={(e) => setPart(e.currentTarget.value)}
+          placeholder="1, 2, 3... (опционально)"
+          min="1"
+        />
+      </div>
+
+      {/* Origin */}
+      <div class="form-group">
+        <label class="form-label">Происхождение</label>
+        <select
+          class="form-input"
+          value={origin()}
+          onChange={(e) => setOrigin(e.currentTarget.value)}
+        >
+          <option value="">Выберите происхождение</option>
+          <option value="origin_systematic">Систематизированное</option>
+          <option value="origin_transcript_derived">Из транскрипции</option>
+          <option value="origin_community_note">Заметка общины</option>
+        </select>
       </div>
     </div>
   );
