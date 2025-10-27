@@ -9,3 +9,5 @@ export { Glossary } from './Glossary.jsx';
 export { OriginalWord } from './OriginalWord.jsx';
 export { PersonRef } from './PersonRef.jsx';
 export { ScriptureRef } from './ScriptureRef.jsx';
+export { PlaceRef } from './PlaceRef.jsx';
+export { SourceRef } from './SourceRef.jsx';
