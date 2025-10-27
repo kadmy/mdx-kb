@@ -4,7 +4,7 @@
  * Заменяет textarea на удобную форму с валидацией.
  * Финальная схема согласно "Проект Ковчег": метаданные + фасеты.
  */
-import { createSignal, createEffect, batch } from 'solid-js';
+import { createSignal, createEffect, batch, untrack } from 'solid-js';
 import yaml from 'js-yaml';
 
 /**
@@ -56,7 +56,7 @@ export function FrontmatterForm(props) {
   const [contentType, setContentType] = createSignal(initialData.content_type || '');
   const [level, setLevel] = createSignal(initialData.level || '');
   const [series, setSeries] = createSignal(initialData.series || '');
-  const [part, setPart] = createSignal(initialData.part || '');
+  const [part, setPart] = createSignal(initialData.part ? String(initialData.part) : '');
   const [origin, setOrigin] = createSignal(initialData.origin || '');
 
   // Флаг для предотвращения циклических обновлений
@@ -79,7 +79,12 @@ export function FrontmatterForm(props) {
     if (contentType()) data.content_type = contentType();
     if (level()) data.level = level();
     if (series()) data.series = series();
-    if (part()) data.part = parseInt(part()) || undefined; // преобразуем в число
+    if (part() && part().trim()) {
+      const partNum = parseInt(part(), 10);
+      if (!isNaN(partNum) && partNum > 0) {
+        data.part = partNum;
+      }
+    }
     if (origin()) data.origin = origin();
 
     // Преобразуем в YAML и отправляем наверх
@@ -100,11 +105,12 @@ export function FrontmatterForm(props) {
       content_type: externalData.content_type || '',
       level: externalData.level || '',
       series: externalData.series || '',
-      part: externalData.part || '',
+      part: externalData.part ? String(externalData.part) : '',
       origin: externalData.origin || '',
     };
 
-    const currentData = {
+    // Используем untrack для чтения текущих значений без создания зависимостей
+    const currentData = untrack(() => ({
       title: title(),
       description: description(),
       date: date(),
@@ -114,7 +120,7 @@ export function FrontmatterForm(props) {
       series: series(),
       part: part(),
       origin: origin(),
-    };
+    }));
 
     // Сравниваем нормализованные данные
     if (JSON.stringify(normalizedExternal) !== JSON.stringify(currentData)) {
