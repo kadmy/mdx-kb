@@ -1,0 +1,20 @@
+# Node / Vite / Tooling
+node_modules/
+dist/
+.vite/
+.cache/
+coverage/
+
+# Env and logs
+.env
+.env.*
+*.log
+
+# Editors/OS
+.DS_Store
+.idea/
+.vscode/
+
+# Misc
+Thumbs.db
+*.local
