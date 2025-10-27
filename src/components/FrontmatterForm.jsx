@@ -300,7 +300,7 @@ export function FrontmatterForm(props) {
           <input
             type="checkbox"
             checked={draft()}
-            onChange={(e) => setDraft(e.currentTarget.checked)}
+            onInput={(e) => setDraft(e.currentTarget.checked)}
             style="width: 18px; height: 18px; cursor: pointer;"
           />
           <span style="font-size: 0.9rem; color: var(--text-secondary);">
@@ -317,7 +317,7 @@ export function FrontmatterForm(props) {
         <select
           class="form-input"
           value={contentType()}
-          onChange={(e) => setContentType(e.currentTarget.value)}
+          onInput={(e) => setContentType(e.currentTarget.value)}
         >
           <option value="">Выберите тип</option>
           <option value="study">Исследование</option>
@@ -335,7 +335,7 @@ export function FrontmatterForm(props) {
         <select
           class="form-input"
           value={level()}
-          onChange={(e) => setLevel(e.currentTarget.value)}
+          onInput={(e) => setLevel(e.currentTarget.value)}
         >
           <option value="">Выберите уровень</option>
           <option value="level_1_beginner">Уровень 1: Для начинающих</option>
@@ -376,7 +376,7 @@ export function FrontmatterForm(props) {
         <select
           class="form-input"
           value={origin()}
-          onChange={(e) => setOrigin(e.currentTarget.value)}
+          onInput={(e) => setOrigin(e.currentTarget.value)}
         >
           <option value="">Выберите происхождение</option>
           <option value="origin_systematic">Систематизированное</option>
