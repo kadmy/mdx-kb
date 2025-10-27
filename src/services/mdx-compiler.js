@@ -16,6 +16,13 @@ export async function compileMDX(mdxContent, components = {}) {
     // Создаем функцию useMDXComponents
     const useMDXComponents = () => components;
 
+    // Создаём lowercase варианты для всех компонентов (для совместимости)
+    const componentsWithLowercase = {};
+    Object.keys(components).forEach(key => {
+      componentsWithLowercase[key] = components[key];
+      componentsWithLowercase[key.toLowerCase()] = components[key];
+    });
+
     // Компилируем и выполняем MDX код
     const { default: Content, frontmatter } = await evaluate(mdxContent, {
       // Опции компиляции
@@ -28,12 +35,8 @@ export async function compileMDX(mdxContent, components = {}) {
       jsxDEV: runtime.jsxDEV,
       // useMDXComponents
       useMDXComponents,
-      // Компоненты напрямую
-      Concept: components.Concept,
-      Term: components.Term,
-      Glossary: components.Glossary,
-      concept: components.concept,
-      term: components.term,
+      // Все компоненты (PascalCase и lowercase)
+      ...componentsWithLowercase,
     });
 
     console.log('MDX compiled successfully');

@@ -17,10 +17,10 @@ import matter from 'gray-matter';
 import yaml from 'js-yaml';
 import { MonacoEditor } from 'solid-monaco';
 
-// Импортируем компоненты из отдельных файлов
-import { Concept } from './components/concept.jsx';
-import { Term } from './components/term.jsx';
-import { Glossary } from './components/Glossary.jsx';
+// Импортируем MDX компоненты
+import * as MDXComponents from './components/mdx-components.js';
+
+// Импортируем UI компоненты
 import { Modal } from './components/Modal.jsx';
 import { ErrorBoundary } from './components/ErrorBoundary.jsx';
 import { ValidationPanel } from './components/ValidationPanel.jsx';
@@ -38,13 +38,9 @@ import { getConcept } from './data/concepts.js';
 import { cookTheme } from './utils/monaco-theme.js';
 
 // Собираем все компоненты, которые будут доступны в MDX
-// Важно: передаем оба варианта имен (lowercase и PascalCase)
+// mdx-compiler.js автоматически создаст lowercase варианты
 const components = {
-  concept: Concept,
-  Concept: Concept,
-  term: Term,
-  Term: Term,
-  Glossary: Glossary,
+  ...MDXComponents
 };
 
 function App() {
