@@ -11,3 +11,10 @@ export { PersonRef } from './PersonRef.jsx';
 export { ScriptureRef } from './ScriptureRef.jsx';
 export { PlaceRef } from './PlaceRef.jsx';
 export { SourceRef } from './SourceRef.jsx';
+
+// === Блочные компоненты ===
+export { BibleVerse } from './BibleVerse.jsx';
+export { Definition } from './Definition.jsx';
+export { Callout } from './Callout.jsx';
+export { JewishContext } from './JewishContext.jsx';
+export { Ritual } from './Ritual.jsx';
