@@ -260,9 +260,14 @@ function App() {
 
   onMount(async () => {
     try {
+      console.log('=== APP LOADING FILE ===');
       const response = await fetch('/api/load');
       const data = await response.json();
+      console.log('Loaded raw content:', data.content.substring(0, 200));
+
       const { content, data: fmData } = matter(data.content);
+      console.log('Parsed frontmatter data (fmData):', fmData);
+
       // Нормализуем frontmatter под формат формы, чтобы не было ложных "несохраненных изменений"
       const normalizeCreated = (value) => {
         if (!value) return '';
@@ -289,10 +294,13 @@ function App() {
       if (fmData?.part) normalizedData.part = fmData.part;
       if (fmData?.origin) normalizedData.origin = fmData.origin;
 
+      console.log('Normalized data:', normalizedData);
       const normalizedYaml = yaml.dump(normalizedData, { lineWidth: -1 });
+      console.log('Normalized YAML:', normalizedYaml);
 
       setEditorContent(content);
       setFrontmatterText(normalizedYaml);
+      console.log('✓ Set frontmatterText to:', normalizedYaml);
 
       // Сохраняем нормализованный оригинал, совпадающий с видом формы
       const normalizedFull = `---\n${normalizedYaml}\n---\n\n${content}`;
