@@ -103,7 +103,9 @@ export function FrontmatterForm(props) {
 
   // Синхронизация с внешними изменениями props.value
   createEffect(() => {
+    console.log('FrontmatterForm SYNC - props.value changed:', props.value.substring(0, 100));
     const externalData = parseYAML(props.value);
+    console.log('FrontmatterForm SYNC - parsed externalData:', externalData);
 
     // Нормализуем данные для сравнения
     const normalizedExternal = {
@@ -131,8 +133,13 @@ export function FrontmatterForm(props) {
       origin: origin(),
     }));
 
+    console.log('FrontmatterForm SYNC - normalizedExternal:', normalizedExternal);
+    console.log('FrontmatterForm SYNC - currentData:', currentData);
+    console.log('FrontmatterForm SYNC - needs update?', JSON.stringify(normalizedExternal) !== JSON.stringify(currentData));
+
     // Сравниваем нормализованные данные
     if (JSON.stringify(normalizedExternal) !== JSON.stringify(currentData)) {
+      console.log('FrontmatterForm SYNC - UPDATING FIELDS!');
       isUpdatingFromProps = true;
 
       // Используем batch для группировки всех обновлений в один цикл реактивности
@@ -151,6 +158,7 @@ export function FrontmatterForm(props) {
       // Сбрасываем флаг после микрозадачи
       queueMicrotask(() => {
         isUpdatingFromProps = false;
+        console.log('FrontmatterForm SYNC - reset isUpdatingFromProps flag');
       });
     }
   });
