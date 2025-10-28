@@ -45,6 +45,8 @@ export function FrontmatterForm(props) {
 
   // Инициализация полей из props.value
   const initialData = parseYAML(props.value);
+  console.log('FrontmatterForm INIT - props.value:', props.value);
+  console.log('FrontmatterForm INIT - parsed initialData:', initialData);
 
   // === 1. Основные Метаданные ===
   const [title, setTitle] = createSignal(initialData.title || '');
@@ -58,6 +60,11 @@ export function FrontmatterForm(props) {
   const [series, setSeries] = createSignal(initialData.series || '');
   const [part, setPart] = createSignal(initialData.part ? String(initialData.part) : '');
   const [origin, setOrigin] = createSignal(initialData.origin || '');
+
+  console.log('FrontmatterForm INIT - signals initialized:');
+  console.log('  title:', title());
+  console.log('  series:', series());
+  console.log('  content_type:', contentType());
 
   // Флаг для предотвращения циклических обновлений
   let isUpdatingFromProps = false;
