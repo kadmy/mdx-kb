@@ -20,6 +20,8 @@ import { MonacoEditor } from 'solid-monaco';
 // Импортируем MDX компоненты
 import * as MDXComponents from './components/mdx-components.js';
 
+console.log('Loaded MDX components:', Object.keys(MDXComponents));
+
 // Импортируем UI компоненты
 import { Modal } from './components/Modal.jsx';
 import { ErrorBoundary } from './components/ErrorBoundary.jsx';
@@ -88,14 +90,22 @@ function App() {
     // Получаем editor instance через monaco.editor API
     // После небольшой задержки, чтобы editor успел создаться
     setTimeout(() => {
-      const editors = monaco.editor.getEditors();
-      console.log('Available editors:', editors);
-      if (editors && editors.length > 0) {
-        const editor = editors[0]; // Берём первый (и единственный) редактор
-        console.log('✓ Editor instance captured:', editor);
-        setEditorInstance(editor);
+      console.log('Trying to get editors...');
+      console.log('monaco.editor:', monaco.editor);
+
+      if (typeof monaco.editor.getEditors === 'function') {
+        const editors = monaco.editor.getEditors();
+        console.log('Available editors:', editors, 'length:', editors?.length);
+        if (editors && editors.length > 0) {
+          const editor = editors[0]; // Берём первый (и единственный) редактор
+          console.log('✓ Editor instance captured:', editor);
+          setEditorInstance(editor);
+        } else {
+          console.warn('No editors found in array');
+        }
       } else {
-        console.warn('No editors found');
+        console.error('monaco.editor.getEditors is not a function!');
+        console.log('Available monaco.editor methods:', Object.keys(monaco.editor));
       }
     }, 100);
   };
