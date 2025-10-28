@@ -71,7 +71,6 @@ function App() {
 
   // Состояние для Monaco editor instance
   const [editorInstance, setEditorInstance] = createSignal(null);
-  let monacoEditorRef;
 
   // Обработчик монтирования Monaco Editor - регистрируем и применяем тему
   const handleEditorMount = (monaco) => {
@@ -85,21 +84,21 @@ function App() {
     } catch (error) {
       console.error('Failed to apply theme:', error);
     }
-  };
 
-  // Эффект для получения editor instance из ref
-  createEffect(() => {
-    if (monacoEditorRef) {
-      console.log('monacoEditorRef:', monacoEditorRef);
-      // Пробуем разные способы получить editor
-      const editor = monacoEditorRef.editor || monacoEditorRef._editor || monacoEditorRef;
-      console.log('Editor from ref:', editor);
-      if (editor && typeof editor.getPosition === 'function') {
+    // Получаем editor instance через monaco.editor API
+    // После небольшой задержки, чтобы editor успел создаться
+    setTimeout(() => {
+      const editors = monaco.editor.getEditors();
+      console.log('Available editors:', editors);
+      if (editors && editors.length > 0) {
+        const editor = editors[0]; // Берём первый (и единственный) редактор
+        console.log('✓ Editor instance captured:', editor);
         setEditorInstance(editor);
-        console.log('✓ Editor instance captured from ref');
+      } else {
+        console.warn('No editors found');
       }
-    }
-  });
+    }, 100);
+  };
 
   // Нормализация полного текста (frontmatter + content) для корректного сравнения
   const normalizeFull = (fullText) => {
@@ -633,7 +632,6 @@ function App() {
             <div class="collapsible-content content-content" classList={{ collapsed: contentCollapsed(), expanded: metadataCollapsed() }}>
               <div style={{ "flex-grow": "1", "min-height": "300px", "border": "1px solid var(--border-dim)", "border-radius": "4px" }}>
                 <MonacoEditor
-                  ref={monacoEditorRef}
                   value={editorContent()}
                   onChange={(value) => setEditorContent(value || '')}
                   onMount={handleEditorMount}
