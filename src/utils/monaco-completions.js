@@ -7,10 +7,17 @@
  * Регистрирует completion provider для MDX компонентов
  * @param {*} monaco - Monaco editor instance
  */
+let isRegistered = false; // Флаг для предотвращения повторной регистрации
+
 export function registerMDXCompletions(monaco) {
+  if (isRegistered) {
+    return; // Уже зарегистрировано, пропускаем
+  }
+
   // Регистрируем для markdown (так как MDX — это расширение Markdown)
   monaco.languages.registerCompletionItemProvider('markdown', {
-    triggerCharacters: ['<', ' '],
+    // Убираем '<' из триггеров - будет срабатывать при печати букв после <
+    triggerCharacters: [],
 
     provideCompletionItems: (model, position) => {
       const textUntilPosition = model.getValueInRange({
@@ -21,6 +28,7 @@ export function registerMDXCompletions(monaco) {
       });
 
       // Проверяем, находимся ли мы внутри JSX тега
+      // Разрешаем либо <Word, либо просто < (но только если дальше есть буквы)
       const match = textUntilPosition.match(/<(\w*)$/);
       if (!match) {
         return { suggestions: [] };
@@ -186,5 +194,6 @@ export function registerMDXCompletions(monaco) {
     },
   });
 
+  isRegistered = true; // Помечаем как зарегистрированное
   console.log('✓ MDX completions registered');
 }

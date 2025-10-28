@@ -531,6 +531,13 @@ function App() {
           display: flex;
           flex-direction: column;
           flex-grow: 1;
+          overflow: visible; /* Позволяем suggest widget выходить за границы */
+        }
+
+        /* Когда метаданные свёрнуты — контент занимает почти всю высоту */
+        .content-content.expanded {
+          max-height: none;
+          flex: 1 1 auto;
         }
 
         .collapsible-content.collapsed {
@@ -604,8 +611,8 @@ function App() {
               </button>
               <h3 style={{ margin: 0 }}>Контент (MDX)</h3>
             </div>
-            <div class="collapsible-content content-content" classList={{ collapsed: contentCollapsed() }}>
-              <div style={{ "flex-grow": "1", "min-height": "300px", "border": "1px solid var(--border-dim)", "border-radius": "4px", "overflow": "hidden" }}>
+            <div class="collapsible-content content-content" classList={{ collapsed: contentCollapsed(), expanded: metadataCollapsed() }}>
+              <div style={{ "flex-grow": "1", "min-height": "300px", "border": "1px solid var(--border-dim)", "border-radius": "4px" }}>
                 <MonacoEditor
                   value={editorContent()}
                   onChange={(value) => setEditorContent(value || '')}
