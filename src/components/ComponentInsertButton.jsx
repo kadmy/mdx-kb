@@ -1,0 +1,280 @@
+/**
+ * @file ComponentInsertButton.jsx
+ * @description Кнопка для вставки MDX компонентов с меню
+ */
+
+import { createSignal, Show, onCleanup } from 'solid-js';
+
+/**
+ * Компонент кнопки вставки с меню компонентов
+ * @param {Object} props
+ * @param {Object} props.editor - Monaco editor instance
+ */
+export function ComponentInsertButton(props) {
+  const [showMenu, setShowMenu] = createSignal(false);
+  const [buttonPosition, setButtonPosition] = createSignal({ top: 0, left: 0, show: false });
+
+  // Список компонентов с русскими названиями
+  const components = [
+    {
+      category: 'Inline компоненты',
+      items: [
+        {
+          label: 'Слово на языке оригинала',
+          snippet: '<OriginalWord lang="hebrew" translit="transliteration"></OriginalWord>',
+        },
+        {
+          label: 'Ссылка на персону',
+          snippet: '<PersonRef personKey="person_id"></PersonRef>',
+        },
+        {
+          label: 'Ссылка на стих',
+          snippet: '<ScriptureRef book="Быт" chapter="1" verse="1" />',
+        },
+        {
+          label: 'Ссылка на место',
+          snippet: '<PlaceRef placeKey="place_id"></PlaceRef>',
+        },
+        {
+          label: 'Ссылка на источник',
+          snippet: '<SourceRef title="Название источника"></SourceRef>',
+        },
+      ],
+    },
+    {
+      category: 'Блочные компоненты',
+      items: [
+        {
+          label: 'Цитата из Писания',
+          snippet: '<BibleVerse book="Книга" chapter="1" verse="1" translation="Синод.">\nТекст цитаты\n</BibleVerse>',
+        },
+        {
+          label: 'Определение термина',
+          snippet: '<Definition term="Термин" original="оригинал">\nОпределение\n</Definition>',
+        },
+        {
+          label: 'Заметка/Предупреждение',
+          snippet: '<Callout type="info" title="Заголовок">\nТекст заметки\n</Callout>',
+        },
+        {
+          label: 'Еврейский контекст',
+          snippet: '<JewishContext title="Заголовок">\nОбъяснение в еврейском контексте\n</JewishContext>',
+        },
+        {
+          label: 'Описание ритуала',
+          snippet: '<Ritual id="ritual_id" title="Название ритуала">\nОписание ритуала\n</Ritual>',
+        },
+      ],
+    },
+    {
+      category: 'Структурные компоненты',
+      items: [
+        {
+          label: 'Раздел аргументации',
+          snippet: '<ArgumentSection thesis="Главный тезис">\n\n<SupportPoint title="Довод">\nТекст довода\n</SupportPoint>\n\n</ArgumentSection>',
+        },
+        {
+          label: 'Довод в поддержку',
+          snippet: '<SupportPoint title="Название довода">\nТекст довода\n</SupportPoint>',
+        },
+        {
+          label: 'Контраргумент',
+          snippet: '<CounterArgument title="Контртезис">\nТекст контраргумента\n</CounterArgument>',
+        },
+        {
+          label: 'Опровержение',
+          snippet: '<Rebuttal summary="Краткий итог">\nТекст опровержения\n</Rebuttal>',
+        },
+        {
+          label: 'Заключение/Синтез',
+          snippet: '<Synthesis>\nИтоговое заключение\n</Synthesis>',
+        },
+      ],
+    },
+    {
+      category: 'Управление знаниями',
+      items: [
+        {
+          label: 'Фрагмент знания (RAG)',
+          snippet: '<KnowledgeFragment concept="concept_id" aspect="definition">\nТекст фрагмента знания\n</KnowledgeFragment>',
+        },
+      ],
+    },
+  ];
+
+  // Обработка вставки компонента
+  const insertComponent = (snippet) => {
+    const editor = props.editor;
+    if (!editor) return;
+
+    const position = editor.getPosition();
+    const range = {
+      startLineNumber: position.lineNumber,
+      startColumn: position.column,
+      endLineNumber: position.lineNumber,
+      endColumn: position.column,
+    };
+
+    editor.executeEdits('insert-component', [
+      {
+        range,
+        text: snippet,
+      },
+    ]);
+
+    editor.focus();
+    setShowMenu(false);
+  };
+
+  // Обновление позиции кнопки при изменении курсора
+  const updateButtonPosition = () => {
+    const editor = props.editor;
+    if (!editor) return;
+
+    const position = editor.getPosition();
+    const column = position.column;
+
+    // Показываем кнопку только если курсор в начале строки (column === 1)
+    if (column === 1) {
+      const domNode = editor.getDomNode();
+      if (!domNode) return;
+
+      const coords = editor.getScrolledVisiblePosition(position);
+      if (!coords) return;
+
+      const editorRect = domNode.getBoundingClientRect();
+
+      setButtonPosition({
+        top: coords.top + editorRect.top,
+        left: editorRect.left - 30, // Слева от редактора
+        show: true,
+      });
+    } else {
+      setButtonPosition({ ...buttonPosition(), show: false });
+    }
+  };
+
+  // Подписка на события курсора
+  const editor = props.editor;
+  if (editor) {
+    const disposable = editor.onDidChangeCursorPosition(updateButtonPosition);
+    onCleanup(() => disposable.dispose());
+
+    // Начальная установка позиции
+    updateButtonPosition();
+  }
+
+  return (
+    <>
+      {/* Кнопка вставки */}
+      <Show when={buttonPosition().show}>
+        <button
+          style={{
+            position: 'fixed',
+            top: `${buttonPosition().top}px`,
+            left: `${buttonPosition().left}px`,
+            width: '24px',
+            height: '24px',
+            'background-color': 'var(--accent-green, #66cc99)',
+            color: 'var(--bg-primary, #1a1e23)',
+            border: 'none',
+            'border-radius': '4px',
+            cursor: 'pointer',
+            'font-size': '16px',
+            display: 'flex',
+            'align-items': 'center',
+            'justify-content': 'center',
+            'z-index': 1000,
+            padding: 0,
+          }}
+          onClick={() => setShowMenu(!showMenu())}
+          title="Вставить компонент"
+        >
+          +
+        </button>
+      </Show>
+
+      {/* Меню компонентов */}
+      <Show when={showMenu()}>
+        <div
+          style={{
+            position: 'fixed',
+            top: `${buttonPosition().top}px`,
+            left: `${buttonPosition().left + 30}px`,
+            'background-color': 'var(--bg-secondary, #0f1419)',
+            border: '1px solid var(--border-dim, #2d3640)',
+            'border-radius': '8px',
+            padding: '8px',
+            'max-height': '70vh',
+            'overflow-y': 'auto',
+            'z-index': 1001,
+            'min-width': '300px',
+            'box-shadow': '0 4px 12px rgba(0, 0, 0, 0.3)',
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {components.map((category) => (
+            <div style={{ 'margin-bottom': '12px' }}>
+              <div
+                style={{
+                  'font-size': '0.85em',
+                  'font-weight': '700',
+                  color: 'var(--accent-green, #66cc99)',
+                  'margin-bottom': '6px',
+                  'text-transform': 'uppercase',
+                  'letter-spacing': '0.05em',
+                }}
+              >
+                {category.category}
+              </div>
+              {category.items.map((item) => (
+                <button
+                  style={{
+                    display: 'block',
+                    width: '100%',
+                    'text-align': 'left',
+                    padding: '8px 12px',
+                    'background-color': 'transparent',
+                    color: 'var(--text-primary, #d4d9d0)',
+                    border: 'none',
+                    'border-radius': '4px',
+                    cursor: 'pointer',
+                    'font-size': '0.95em',
+                    'margin-bottom': '2px',
+                    transition: 'background-color 0.2s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = 'var(--accent-green, #66cc99)';
+                    e.currentTarget.style.color = 'var(--bg-primary, #1a1e23)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.color = 'var(--text-primary, #d4d9d0)';
+                  }}
+                  onClick={() => insertComponent(item.snippet)}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          ))}
+        </div>
+      </Show>
+
+      {/* Overlay для закрытия меню при клике вне */}
+      <Show when={showMenu()}>
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            'z-index': 999,
+          }}
+          onClick={() => setShowMenu(false)}
+        />
+      </Show>
+    </>
+  );
+}

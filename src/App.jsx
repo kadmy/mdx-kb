@@ -25,6 +25,7 @@ import { Modal } from './components/Modal.jsx';
 import { ErrorBoundary } from './components/ErrorBoundary.jsx';
 import { ValidationPanel } from './components/ValidationPanel.jsx';
 import { FrontmatterForm } from './components/FrontmatterForm.jsx';
+import { ComponentInsertButton } from './components/ComponentInsertButton.jsx';
 
 // Сервисы
 import { compileMDX } from './services/mdx-compiler.js';
@@ -34,9 +35,8 @@ import { debounce } from './utils/debounce.js';
 // Данные
 import { getConcept } from './data/concepts.js';
 
-// Monaco тема и автодополнения
+// Monaco тема
 import { cookTheme } from './utils/monaco-theme.js';
-import { registerMDXCompletions } from './utils/monaco-completions.js';
 
 // Собираем все компоненты, которые будут доступны в MDX
 // mdx-compiler.js автоматически создаст lowercase варианты
@@ -69,8 +69,13 @@ function App() {
   const [metadataCollapsed, setMetadataCollapsed] = createSignal(false);
   const [contentCollapsed, setContentCollapsed] = createSignal(false);
 
+  // Состояние для Monaco editor instance
+  const [editorInstance, setEditorInstance] = createSignal(null);
+
   // Обработчик монтирования Monaco Editor - регистрируем и применяем тему
-  const handleEditorMount = (monaco) => {
+  const handleEditorMount = (editor, monaco) => {
+    // Сохраняем ссылку на редактор для ComponentInsertButton
+    setEditorInstance(editor);
     // Регистрируем кастомную тему и сразу применяем
     try {
       monaco.editor.defineTheme('cook-theme', cookTheme);
@@ -78,13 +83,6 @@ function App() {
       console.log('✓ Cook theme registered and applied');
     } catch (error) {
       console.error('Failed to apply theme:', error);
-    }
-
-    // Регистрируем автодополнения для MDX компонентов
-    try {
-      registerMDXCompletions(monaco);
-    } catch (error) {
-      console.error('Failed to register MDX completions:', error);
     }
   };
 
@@ -643,6 +641,10 @@ function App() {
                   }}
                 />
               </div>
+              {/* Кнопка вставки компонентов */}
+              <Show when={editorInstance()}>
+                <ComponentInsertButton editor={editorInstance()} />
+              </Show>
             </div>
           </div>
         </div>
