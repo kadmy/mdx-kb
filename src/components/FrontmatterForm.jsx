@@ -89,6 +89,8 @@ export function FrontmatterForm(props) {
 
     // Преобразуем в YAML и отправляем наверх
     const yamlString = yaml.dump(data, { lineWidth: -1, sortKeys: false });
+    console.log('FrontmatterForm: updating YAML, series =', series());
+    console.log('FrontmatterForm: YAML output:', yamlString);
     props.onChange(yamlString);
   });
 
