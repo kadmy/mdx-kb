@@ -155,11 +155,9 @@ export function FrontmatterForm(props) {
         setOrigin(normalizedExternal.origin);
       });
 
-      // Сбрасываем флаг после микрозадачи
-      queueMicrotask(() => {
-        isUpdatingFromProps = false;
-        console.log('FrontmatterForm SYNC - reset isUpdatingFromProps flag');
-      });
+      // Сбрасываем флаг синхронно
+      isUpdatingFromProps = false;
+      console.log('FrontmatterForm SYNC - fields updated, flag reset');
     }
   });
 
