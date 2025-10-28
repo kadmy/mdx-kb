@@ -3,7 +3,7 @@
  * @description Кнопка для вставки MDX компонентов с меню
  */
 
-import { createSignal, Show, onCleanup } from 'solid-js';
+import { createSignal, createEffect, Show, onCleanup } from 'solid-js';
 
 /**
  * Компонент кнопки вставки с меню компонентов
@@ -154,15 +154,27 @@ export function ComponentInsertButton(props) {
     }
   };
 
-  // Подписка на события курсора
-  const editor = props.editor;
-  if (editor) {
+  // Подписка на события курсора через createEffect для реактивности
+  createEffect(() => {
+    const editor = props.editor;
+    if (!editor) return;
+
+    // Проверяем, что editor полностью инициализирован
+    if (typeof editor.onDidChangeCursorPosition !== 'function') {
+      console.warn('Editor not fully initialized yet');
+      return;
+    }
+
     const disposable = editor.onDidChangeCursorPosition(updateButtonPosition);
-    onCleanup(() => disposable.dispose());
+    onCleanup(() => {
+      if (disposable) {
+        disposable.dispose();
+      }
+    });
 
     // Начальная установка позиции
     updateButtonPosition();
-  }
+  });
 
   return (
     <>
