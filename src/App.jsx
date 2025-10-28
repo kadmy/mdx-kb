@@ -34,8 +34,9 @@ import { debounce } from './utils/debounce.js';
 // Данные
 import { getConcept } from './data/concepts.js';
 
-// Monaco тема
+// Monaco тема и автодополнения
 import { cookTheme } from './utils/monaco-theme.js';
+import { registerMDXCompletions } from './utils/monaco-completions.js';
 
 // Собираем все компоненты, которые будут доступны в MDX
 // mdx-compiler.js автоматически создаст lowercase варианты
@@ -77,6 +78,13 @@ function App() {
       console.log('✓ Cook theme registered and applied');
     } catch (error) {
       console.error('Failed to apply theme:', error);
+    }
+
+    // Регистрируем автодополнения для MDX компонентов
+    try {
+      registerMDXCompletions(monaco);
+    } catch (error) {
+      console.error('Failed to register MDX completions:', error);
     }
   };
 
