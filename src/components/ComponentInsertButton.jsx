@@ -15,6 +15,7 @@ export function ComponentInsertButton(props) {
   const [showMenu, setShowMenu] = createSignal(false);
   const [buttonPosition, setButtonPosition] = createSignal({ top: 0, left: 0, show: false });
   const [menuPosition, setMenuPosition] = createSignal({ top: 0, left: 0 });
+  let menuRef;
 
   // Список компонентов с русскими названиями
   const components = [
@@ -107,12 +108,15 @@ export function ComponentInsertButton(props) {
   // Вычисление позиции меню с учётом границ экрана
   const calculateMenuPosition = () => {
     const btnPos = buttonPosition();
-    const menuWidth = 320; // Примерная ширина меню
-    const menuHeight = 500; // Примерная высота меню (max-height: 70vh)
     const padding = 10;
 
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
+
+    // Используем реальную высоту меню, если оно уже отрендерено
+    // Иначе используем примерную
+    const menuWidth = menuRef?.offsetWidth || 320;
+    const menuHeight = menuRef?.offsetHeight || 500;
 
     let top = btnPos.top;
     let left = btnPos.left + 30; // Справа от кнопки
@@ -130,7 +134,7 @@ export function ComponentInsertButton(props) {
 
     // Проверяем, помещается ли меню снизу
     const spaceBelow = viewportHeight - top;
-    if (menuHeight > spaceBelow) {
+    if (menuHeight > spaceBelow - padding) {
       // Не помещается - смещаем вверх на разницу + padding
       top = top - (menuHeight - spaceBelow) - padding;
     }
@@ -216,6 +220,16 @@ export function ComponentInsertButton(props) {
     updateButtonPosition();
   });
 
+  // Пересчёт позиции меню после его рендера (когда ref доступен)
+  createEffect(() => {
+    if (showMenu() && menuRef) {
+      // Небольшая задержка, чтобы DOM успел обновиться
+      setTimeout(() => {
+        calculateMenuPosition();
+      }, 0);
+    }
+  });
+
   return (
     <>
       {/* Кнопка вставки */}
@@ -256,6 +270,7 @@ export function ComponentInsertButton(props) {
       <Portal>
         <Show when={showMenu()}>
           <div
+            ref={menuRef}
             style={{
               position: 'fixed',
               top: `${menuPosition().top}px`,
