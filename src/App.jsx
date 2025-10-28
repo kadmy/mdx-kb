@@ -619,6 +619,7 @@ function App() {
                     automaticLayout: true,
                     scrollBeyondLastLine: false,
                     renderWhitespace: 'selection',
+                    autoClosingBrackets: 'never', // Отключаем автозакрытие <>, чтобы не мешать MDX
                   }}
                 />
               </div>

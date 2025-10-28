@@ -73,7 +73,7 @@ export function registerMDXCompletions(monaco) {
         {
           label: 'BibleVerse',
           kind: monaco.languages.CompletionItemKind.Class,
-          insertText: 'BibleVerse book="${1:Книга}" chapter="${2:1}" verse="${3:1}" translation="${4:Синод.}">\n  $5\n</BibleVerse>$0',
+          insertText: 'BibleVerse book="${1:Книга}" chapter="${2:1}" verse="${3:1}" translation="${4:Синод.}">\n$5\n</BibleVerse>$0',
           insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
           documentation: 'Форматированная цитата из Писания',
           detail: 'Блок: цитата из Писания',
@@ -81,7 +81,7 @@ export function registerMDXCompletions(monaco) {
         {
           label: 'Definition',
           kind: monaco.languages.CompletionItemKind.Class,
-          insertText: 'Definition term="${1:Термин}" original="${2:оригинал}">\n  $3\n</Definition>$0',
+          insertText: 'Definition term="${1:Термин}" original="${2:оригинал}">\n$3\n</Definition>$0',
           insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
           documentation: 'Определение ключевого термина',
           detail: 'Блок: определение',
@@ -89,7 +89,7 @@ export function registerMDXCompletions(monaco) {
         {
           label: 'Callout',
           kind: monaco.languages.CompletionItemKind.Class,
-          insertText: 'Callout type="${1|info,warning,doctrine,interpretation,danger|}" title="${2:Заголовок}">\n  $3\n</Callout>$0',
+          insertText: 'Callout type="${1|info,warning,doctrine,interpretation,danger|}" title="${2:Заголовок}">\n$3\n</Callout>$0',
           insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
           documentation: 'Выделенный блок для привлечения внимания',
           detail: 'Блок: заметка/предупреждение',
@@ -97,7 +97,7 @@ export function registerMDXCompletions(monaco) {
         {
           label: 'JewishContext',
           kind: monaco.languages.CompletionItemKind.Class,
-          insertText: 'JewishContext title="${1:Заголовок}">\n  $2\n</JewishContext>$0',
+          insertText: 'JewishContext title="${1:Заголовок}">\n$2\n</JewishContext>$0',
           insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
           documentation: 'Еврейский культурный контекст',
           detail: 'Блок: еврейский контекст',
@@ -105,7 +105,7 @@ export function registerMDXCompletions(monaco) {
         {
           label: 'Ritual',
           kind: monaco.languages.CompletionItemKind.Class,
-          insertText: 'Ritual id="${1:ritual_id}" title="${2:Название ритуала}">\n  $3\n</Ritual>$0',
+          insertText: 'Ritual id="${1:ritual_id}" title="${2:Название ритуала}">\n$3\n</Ritual>$0',
           insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
           documentation: 'Описание еврейского ритуала',
           detail: 'Блок: ритуал',
@@ -115,7 +115,7 @@ export function registerMDXCompletions(monaco) {
         {
           label: 'ArgumentSection',
           kind: monaco.languages.CompletionItemKind.Class,
-          insertText: 'ArgumentSection thesis="${1:Главный тезис раздела}">\n\n  <SupportPoint title="${2:Название довода}">\n    $3\n  </SupportPoint>\n\n</ArgumentSection>$0',
+          insertText: 'ArgumentSection thesis="${1:Главный тезис раздела}">\n\n<SupportPoint title="${2:Название довода}">\n$3\n</SupportPoint>\n\n</ArgumentSection>$0',
           insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
           documentation: 'Раздел аргументации с тезисом',
           detail: 'Структура: раздел аргументации',
@@ -123,7 +123,7 @@ export function registerMDXCompletions(monaco) {
         {
           label: 'SupportPoint',
           kind: monaco.languages.CompletionItemKind.Class,
-          insertText: 'SupportPoint title="${1:Название довода}">\n  $2\n</SupportPoint>$0',
+          insertText: 'SupportPoint title="${1:Название довода}">\n$2\n</SupportPoint>$0',
           insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
           documentation: 'Довод в поддержку тезиса',
           detail: 'Структура: довод',
@@ -131,7 +131,7 @@ export function registerMDXCompletions(monaco) {
         {
           label: 'CounterArgument',
           kind: monaco.languages.CompletionItemKind.Class,
-          insertText: 'CounterArgument title="${1:Контртезис}">\n  $2\n</CounterArgument>$0',
+          insertText: 'CounterArgument title="${1:Контртезис}">\n$2\n</CounterArgument>$0',
           insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
           documentation: 'Контраргумент, противоположная позиция',
           detail: 'Структура: контраргумент',
@@ -139,7 +139,7 @@ export function registerMDXCompletions(monaco) {
         {
           label: 'Rebuttal',
           kind: monaco.languages.CompletionItemKind.Class,
-          insertText: 'Rebuttal summary="${1:Краткий итог опровержения}">\n  $2\n</Rebuttal>$0',
+          insertText: 'Rebuttal summary="${1:Краткий итог опровержения}">\n$2\n</Rebuttal>$0',
           insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
           documentation: 'Опровержение контраргумента',
           detail: 'Структура: опровержение',
@@ -147,7 +147,7 @@ export function registerMDXCompletions(monaco) {
         {
           label: 'Synthesis',
           kind: monaco.languages.CompletionItemKind.Class,
-          insertText: 'Synthesis>\n  $1\n</Synthesis>$0',
+          insertText: 'Synthesis>\n$1\n</Synthesis>$0',
           insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
           documentation: 'Заключительный синтез аргументации',
           detail: 'Структура: синтез',
@@ -157,7 +157,7 @@ export function registerMDXCompletions(monaco) {
         {
           label: 'KnowledgeFragment',
           kind: monaco.languages.CompletionItemKind.Class,
-          insertText: 'KnowledgeFragment concept="${1:concept_id}" aspect="${2|etymological,definition,application,problem,polemic,comparative,interpretation,historical,theological|}">\n  $3\n</KnowledgeFragment>$0',
+          insertText: 'KnowledgeFragment concept="${1:concept_id}" aspect="${2|etymological,definition,application,problem,polemic,comparative,interpretation,historical,theological|}">\n$3\n</KnowledgeFragment>$0',
           insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
           documentation: 'Маркировка фрагмента знания для RAG-системы',
           detail: 'RAG: фрагмент знания',
