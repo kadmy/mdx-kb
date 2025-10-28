@@ -3,7 +3,7 @@
  * @description Кнопка для вставки MDX компонентов с меню
  */
 
-import { createSignal, createEffect, Show, onCleanup } from 'solid-js';
+import { createSignal, createEffect, Show, onCleanup, Portal } from 'solid-js';
 
 /**
  * Компонент кнопки вставки с меню компонентов
@@ -13,6 +13,7 @@ import { createSignal, createEffect, Show, onCleanup } from 'solid-js';
 export function ComponentInsertButton(props) {
   const [showMenu, setShowMenu] = createSignal(false);
   const [buttonPosition, setButtonPosition] = createSignal({ top: 0, left: 0, show: false });
+  const [menuPosition, setMenuPosition] = createSignal({ top: 0, left: 0 });
 
   // Список компонентов с русскими названиями
   const components = [
@@ -102,6 +103,39 @@ export function ComponentInsertButton(props) {
     },
   ];
 
+  // Вычисление позиции меню с учётом границ экрана
+  const calculateMenuPosition = () => {
+    const btnPos = buttonPosition();
+    const menuWidth = 320; // Примерная ширина меню
+    const menuHeight = 500; // Примерная высота меню (max-height: 70vh)
+
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+
+    let top = btnPos.top;
+    let left = btnPos.left + 30; // Справа от кнопки
+
+    // Проверяем, помещается ли меню справа
+    if (left + menuWidth > viewportWidth) {
+      // Не помещается справа - показываем слева от кнопки
+      left = btnPos.left - menuWidth - 5;
+    }
+
+    // Проверяем, помещается ли меню снизу
+    if (top + menuHeight > viewportHeight) {
+      // Не помещается снизу - показываем сверху
+      top = Math.max(10, viewportHeight - menuHeight - 10);
+    }
+
+    // Не даём меню уйти за левую границу
+    if (left < 0) {
+      left = 10;
+    }
+
+    console.log('Menu position calculated:', { top, left, btnPos, viewportWidth, viewportHeight });
+    setMenuPosition({ top, left });
+  };
+
   // Обработка вставки компонента
   const insertComponent = (snippet) => {
     const editor = props.editor;
@@ -133,7 +167,6 @@ export function ComponentInsertButton(props) {
 
     const position = editor.getPosition();
     const column = position.column;
-    console.log('updateButtonPosition - cursor column:', column);
 
     // Показываем кнопку только если курсор в начале строки (column === 1)
     if (column === 1) {
@@ -145,7 +178,6 @@ export function ComponentInsertButton(props) {
 
       const editorRect = domNode.getBoundingClientRect();
 
-      console.log('✓ Showing button at:', { top: coords.top + editorRect.top, left: editorRect.left - 30 });
       setButtonPosition({
         top: coords.top + editorRect.top,
         left: editorRect.left - 30, // Слева от редактора
@@ -159,20 +191,13 @@ export function ComponentInsertButton(props) {
   // Подписка на события курсора через createEffect для реактивности
   createEffect(() => {
     const editor = props.editor;
-    console.log('ComponentInsertButton createEffect - editor:', editor);
-
-    if (!editor) {
-      console.log('No editor yet');
-      return;
-    }
+    if (!editor) return;
 
     // Проверяем, что editor полностью инициализирован
     if (typeof editor.onDidChangeCursorPosition !== 'function') {
-      console.warn('Editor not fully initialized yet');
       return;
     }
 
-    console.log('✓ Setting up cursor position listener');
     const disposable = editor.onDidChangeCursorPosition(updateButtonPosition);
     onCleanup(() => {
       if (disposable) {
@@ -207,20 +232,27 @@ export function ComponentInsertButton(props) {
             'z-index': 1000,
             padding: 0,
           }}
-          onClick={() => setShowMenu(!showMenu())}
+          onClick={() => {
+            const newState = !showMenu();
+            setShowMenu(newState);
+            if (newState) {
+              calculateMenuPosition();
+            }
+          }}
           title="Вставить компонент"
         >
           +
         </button>
       </Show>
 
-      {/* Меню компонентов */}
-      <Show when={showMenu()}>
-        <div
-          style={{
-            position: 'fixed',
-            top: `${buttonPosition().top}px`,
-            left: `${buttonPosition().left + 30}px`,
+      {/* Меню компонентов - через Portal чтобы не обрезалось */}
+      <Portal>
+        <Show when={showMenu()}>
+          <div
+            style={{
+              position: 'fixed',
+              top: `${menuPosition().top}px`,
+              left: `${menuPosition().left}px`,
             'background-color': 'var(--bg-secondary, #0f1419)',
             border: '1px solid var(--border-dim, #2d3640)',
             'border-radius': '8px',
@@ -279,10 +311,8 @@ export function ComponentInsertButton(props) {
             </div>
           ))}
         </div>
-      </Show>
 
-      {/* Overlay для закрытия меню при клике вне */}
-      <Show when={showMenu()}>
+        {/* Overlay для закрытия меню при клике вне */}
         <div
           style={{
             position: 'fixed',
@@ -294,7 +324,8 @@ export function ComponentInsertButton(props) {
           }}
           onClick={() => setShowMenu(false)}
         />
-      </Show>
+        </Show>
+      </Portal>
     </>
   );
 }

@@ -20,8 +20,6 @@ import { MonacoEditor } from 'solid-monaco';
 // Импортируем MDX компоненты
 import * as MDXComponents from './components/mdx-components.js';
 
-console.log('Loaded MDX components:', Object.keys(MDXComponents));
-
 // Импортируем UI компоненты
 import { Modal } from './components/Modal.jsx';
 import { ErrorBoundary } from './components/ErrorBoundary.jsx';
@@ -76,36 +74,23 @@ function App() {
 
   // Обработчик монтирования Monaco Editor - регистрируем и применяем тему
   const handleEditorMount = (monaco) => {
-    console.log('handleEditorMount - monaco:', monaco);
-
     // Регистрируем кастомную тему и сразу применяем
     try {
       monaco.editor.defineTheme('cook-theme', cookTheme);
       monaco.editor.setTheme('cook-theme');
-      console.log('✓ Cook theme registered and applied');
+      console.log('✓ Cook theme applied');
     } catch (error) {
       console.error('Failed to apply theme:', error);
     }
 
     // Получаем editor instance через monaco.editor API
-    // После небольшой задержки, чтобы editor успел создаться
     setTimeout(() => {
-      console.log('Trying to get editors...');
-      console.log('monaco.editor:', monaco.editor);
-
       if (typeof monaco.editor.getEditors === 'function') {
         const editors = monaco.editor.getEditors();
-        console.log('Available editors:', editors, 'length:', editors?.length);
         if (editors && editors.length > 0) {
-          const editor = editors[0]; // Берём первый (и единственный) редактор
-          console.log('✓ Editor instance captured:', editor);
-          setEditorInstance(editor);
-        } else {
-          console.warn('No editors found in array');
+          setEditorInstance(editors[0]);
+          console.log('✓ Editor instance captured');
         }
-      } else {
-        console.error('monaco.editor.getEditors is not a function!');
-        console.log('Available monaco.editor methods:', Object.keys(monaco.editor));
       }
     }, 100);
   };
