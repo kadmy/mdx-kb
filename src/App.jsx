@@ -531,7 +531,7 @@ function App() {
           display: flex;
           flex-direction: column;
           flex-grow: 1;
-          overflow: visible; /* Позволяем suggest widget выходить за границы */
+          max-height: 100vh; /* Большое значение для transition */
         }
 
         /* Когда метаданные свёрнуты — контент занимает почти всю высоту */
@@ -541,9 +541,9 @@ function App() {
         }
 
         .collapsible-content.collapsed {
-          max-height: 0;
+          max-height: 0 !important;
           opacity: 0;
-          overflow: hidden;
+          overflow: hidden !important;
         }
 
         /* Стандартизированные настройки скролла для превью */
@@ -551,6 +551,11 @@ function App() {
           scrollbar-color: rgba(26, 58, 58, 0.5) #072828;
           scrollbar-width: auto;
           scrollbar-gutter: stable both-edges;
+        }
+
+        /* Monaco suggest widget - позиционирование выше панели */
+        .monaco-editor .suggest-widget {
+          z-index: 10000 !important;
         }
       `}</style>
       <div class="app-container">
@@ -626,7 +631,13 @@ function App() {
                     automaticLayout: true,
                     scrollBeyondLastLine: false,
                     renderWhitespace: 'selection',
-                    autoClosingBrackets: 'never', // Отключаем автозакрытие <>, чтобы не мешать MDX
+                    autoClosingBrackets: 'never',
+                    autoClosingQuotes: 'never',
+                    autoClosingOvertype: 'never',
+                    suggest: {
+                      showWords: false, // Отключаем слова из документа
+                      snippetsPreventQuickSuggestions: false,
+                    },
                   }}
                 />
               </div>
