@@ -225,7 +225,9 @@ function App() {
     setSaveStatus('saving');
     try {
       const fileContent = buildFullContent();
-      console.log('Saving file content:', fileContent);
+      console.log('=== SAVING FILE ===');
+      console.log('frontmatterText:', frontmatterText());
+      console.log('Full content to save:', fileContent);
 
       const response = await fetch('/api/save', {
         method: 'POST',
@@ -237,6 +239,7 @@ function App() {
 
       // Обновляем original content после успешного сохранения
       setOriginalContent(fileContent);
+      console.log('✓ Saved successfully, originalContent updated');
       setSaveStatus('saved');
       setTimeout(() => setSaveStatus('idle'), 2000);
     } catch (error) {

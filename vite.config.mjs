@@ -56,7 +56,11 @@ export default defineConfig({
                   res.end(JSON.stringify({ error: 'Content is missing' }));
                   return;
                 }
+                console.log('=== SERVER SAVING ===');
+                console.log('Content length:', content.length);
+                console.log('First 500 chars:', content.substring(0, 500));
                 fs.writeFileSync(contentFilePath, content, 'utf8');
+                console.log('✓ File written to:', contentFilePath);
                 res.setHeader('Content-Type', 'application/json');
                 res.end(JSON.stringify({ success: true, message: 'File saved successfully.' }));
               } catch (error) {
