@@ -109,6 +109,7 @@ export function ComponentInsertButton(props) {
     const btnPos = buttonPosition();
     const menuWidth = 320; // Примерная ширина меню
     const menuHeight = 500; // Примерная высота меню (max-height: 70vh)
+    const padding = 10;
 
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
@@ -122,18 +123,23 @@ export function ComponentInsertButton(props) {
       left = btnPos.left - menuWidth - 5;
     }
 
-    // Проверяем, помещается ли меню снизу
-    if (top + menuHeight > viewportHeight) {
-      // Не помещается снизу - показываем сверху
-      top = Math.max(10, viewportHeight - menuHeight - 10);
-    }
-
     // Не даём меню уйти за левую границу
     if (left < 0) {
-      left = 10;
+      left = padding;
     }
 
-    console.log('Menu position calculated:', { top, left, btnPos, viewportWidth, viewportHeight });
+    // Проверяем, помещается ли меню снизу
+    const spaceBelow = viewportHeight - top;
+    if (menuHeight > spaceBelow) {
+      // Не помещается - смещаем вверх на разницу + padding
+      top = top - (menuHeight - spaceBelow) - padding;
+    }
+
+    // Не даём меню уйти за верхнюю границу
+    if (top < padding) {
+      top = padding;
+    }
+
     setMenuPosition({ top, left });
   };
 
