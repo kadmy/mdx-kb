@@ -71,12 +71,11 @@ function App() {
 
   // Состояние для Monaco editor instance
   const [editorInstance, setEditorInstance] = createSignal(null);
+  let monacoEditorRef;
 
   // Обработчик монтирования Monaco Editor - регистрируем и применяем тему
-  const handleEditorMount = (editor, monaco) => {
-    // Сохраняем editor instance
-    setEditorInstance(editor);
-    console.log('✓ Editor instance captured:', editor);
+  const handleEditorMount = (monaco) => {
+    console.log('handleEditorMount - monaco:', monaco);
 
     // Регистрируем кастомную тему и сразу применяем
     try {
@@ -87,6 +86,20 @@ function App() {
       console.error('Failed to apply theme:', error);
     }
   };
+
+  // Эффект для получения editor instance из ref
+  createEffect(() => {
+    if (monacoEditorRef) {
+      console.log('monacoEditorRef:', monacoEditorRef);
+      // Пробуем разные способы получить editor
+      const editor = monacoEditorRef.editor || monacoEditorRef._editor || monacoEditorRef;
+      console.log('Editor from ref:', editor);
+      if (editor && typeof editor.getPosition === 'function') {
+        setEditorInstance(editor);
+        console.log('✓ Editor instance captured from ref');
+      }
+    }
+  });
 
   // Нормализация полного текста (frontmatter + content) для корректного сравнения
   const normalizeFull = (fullText) => {
@@ -620,6 +633,7 @@ function App() {
             <div class="collapsible-content content-content" classList={{ collapsed: contentCollapsed(), expanded: metadataCollapsed() }}>
               <div style={{ "flex-grow": "1", "min-height": "300px", "border": "1px solid var(--border-dim)", "border-radius": "4px" }}>
                 <MonacoEditor
+                  ref={monacoEditorRef}
                   value={editorContent()}
                   onChange={(value) => setEditorContent(value || '')}
                   onMount={handleEditorMount}
