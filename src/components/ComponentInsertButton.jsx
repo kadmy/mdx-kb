@@ -133,6 +133,7 @@ export function ComponentInsertButton(props) {
 
     const position = editor.getPosition();
     const column = position.column;
+    console.log('updateButtonPosition - cursor column:', column);
 
     // Показываем кнопку только если курсор в начале строки (column === 1)
     if (column === 1) {
@@ -144,6 +145,7 @@ export function ComponentInsertButton(props) {
 
       const editorRect = domNode.getBoundingClientRect();
 
+      console.log('✓ Showing button at:', { top: coords.top + editorRect.top, left: editorRect.left - 30 });
       setButtonPosition({
         top: coords.top + editorRect.top,
         left: editorRect.left - 30, // Слева от редактора
@@ -157,7 +159,12 @@ export function ComponentInsertButton(props) {
   // Подписка на события курсора через createEffect для реактивности
   createEffect(() => {
     const editor = props.editor;
-    if (!editor) return;
+    console.log('ComponentInsertButton createEffect - editor:', editor);
+
+    if (!editor) {
+      console.log('No editor yet');
+      return;
+    }
 
     // Проверяем, что editor полностью инициализирован
     if (typeof editor.onDidChangeCursorPosition !== 'function') {
@@ -165,6 +172,7 @@ export function ComponentInsertButton(props) {
       return;
     }
 
+    console.log('✓ Setting up cursor position listener');
     const disposable = editor.onDidChangeCursorPosition(updateButtonPosition);
     onCleanup(() => {
       if (disposable) {
