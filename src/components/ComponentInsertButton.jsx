@@ -190,8 +190,8 @@ export function ComponentInsertButton(props) {
       const editorRect = domNode.getBoundingClientRect();
 
       setButtonPosition({
-        top: coords.top + editorRect.top,
-        left: editorRect.left - 30, // Слева от редактора
+        top: coords.top + editorRect.top - 2,
+        left: editorRect.left - 10, // Слева от редактора
         show: true,
       });
     } else {

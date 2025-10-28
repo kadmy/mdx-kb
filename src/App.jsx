@@ -273,13 +273,18 @@ function App() {
       };
 
       const normalizedData = {};
+      // === 1. Основные метаданные ===
       if (fmData?.title) normalizedData.title = fmData.title;
-      if (fmData?.author) normalizedData.author = fmData.author;
-      if (fmData?.created) normalizedData.created = normalizeCreated(fmData.created);
-      if (fmData?.type) normalizedData.type = fmData.type;
-      if (Array.isArray(fmData?.tags) && fmData.tags.length > 0) normalizedData.tags = fmData.tags;
-      if (Array.isArray(fmData?.concepts) && fmData.concepts.length > 0) normalizedData.concepts = fmData.concepts;
-      if (Array.isArray(fmData?.terms) && fmData.terms.length > 0) normalizedData.terms = fmData.terms;
+      if (fmData?.description) normalizedData.description = fmData.description;
+      if (fmData?.date) normalizedData.date = normalizeCreated(fmData.date);
+      if (fmData?.draft !== undefined) normalizedData.draft = fmData.draft;
+
+      // === 2. Организационные фасеты ===
+      if (fmData?.content_type) normalizedData.content_type = fmData.content_type;
+      if (fmData?.level) normalizedData.level = fmData.level;
+      if (fmData?.series) normalizedData.series = fmData.series;
+      if (fmData?.part) normalizedData.part = fmData.part;
+      if (fmData?.origin) normalizedData.origin = fmData.origin;
 
       const normalizedYaml = yaml.dump(normalizedData, { lineWidth: -1 });
 
