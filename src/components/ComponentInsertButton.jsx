@@ -230,6 +230,20 @@ export function ComponentInsertButton(props) {
     }
   });
 
+  // Пересчёт позиции при ресайзе окна браузера
+  createEffect(() => {
+    if (!showMenu()) return;
+
+    const handleResize = () => {
+      calculateMenuPosition();
+    };
+
+    window.addEventListener('resize', handleResize);
+    onCleanup(() => {
+      window.removeEventListener('resize', handleResize);
+    });
+  });
+
   return (
     <>
       {/* Кнопка вставки */}
@@ -275,18 +289,23 @@ export function ComponentInsertButton(props) {
               position: 'fixed',
               top: `${menuPosition().top}px`,
               left: `${menuPosition().left}px`,
-            'background-color': 'var(--bg-secondary, #0f1419)',
-            border: '1px solid var(--border-dim, #2d3640)',
-            'border-radius': '8px',
-            padding: '8px',
-            'max-height': '70vh',
-            'overflow-y': 'auto',
-            'z-index': 1001,
-            'min-width': '300px',
-            'box-shadow': '0 4px 12px rgba(0, 0, 0, 0.3)',
-          }}
-          onClick={(e) => e.stopPropagation()}
-        >
+              'background-color': 'var(--bg-medium, #1a3a3a)',
+              border: '1px solid var(--border-dim, #884422)',
+              'border-radius': '8px',
+              padding: '8px',
+              'max-height': '70vh',
+              'overflow-y': 'auto',
+              'overflow-x': 'hidden',
+              'z-index': 1001,
+              'min-width': '300px',
+              'box-shadow': '0 4px 12px rgba(0, 0, 0, 0.5)',
+              /* Стилизация скроллбара под тему */
+              'scrollbar-color': 'rgba(26, 58, 58, 0.5) #072828',
+              'scrollbar-width': 'auto',
+              'scrollbar-gutter': 'stable both-edges',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
           {components.map((category) => (
             <div style={{ 'margin-bottom': '12px' }}>
               <div
@@ -315,11 +334,11 @@ export function ComponentInsertButton(props) {
                     cursor: 'pointer',
                     'font-size': '0.95em',
                     'margin-bottom': '2px',
-                    transition: 'background-color 0.2s ease',
+                    transition: 'background-color 0.2s ease, color 0.2s ease',
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.backgroundColor = 'var(--accent-green, #66cc99)';
-                    e.currentTarget.style.color = 'var(--bg-primary, #1a1e23)';
+                    e.currentTarget.style.color = 'var(--bg-deep, #072828)';
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.backgroundColor = 'transparent';
