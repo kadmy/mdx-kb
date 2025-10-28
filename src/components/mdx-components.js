@@ -25,3 +25,6 @@ export { SupportPoint } from './SupportPoint.jsx';
 export { CounterArgument } from './CounterArgument.jsx';
 export { Rebuttal } from './Rebuttal.jsx';
 export { Synthesis } from './Synthesis.jsx';
+
+// === Компоненты управления знаниями ===
+export { KnowledgeFragment } from './KnowledgeFragment.jsx';
