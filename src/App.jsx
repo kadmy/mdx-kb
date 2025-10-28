@@ -73,9 +73,7 @@ function App() {
   const [editorInstance, setEditorInstance] = createSignal(null);
 
   // Обработчик монтирования Monaco Editor - регистрируем и применяем тему
-  const handleEditorMount = (editor, monaco) => {
-    // Сохраняем ссылку на редактор для ComponentInsertButton
-    setEditorInstance(editor);
+  const handleEditorMount = (monaco) => {
     // Регистрируем кастомную тему и сразу применяем
     try {
       monaco.editor.defineTheme('cook-theme', cookTheme);
@@ -84,6 +82,12 @@ function App() {
     } catch (error) {
       console.error('Failed to apply theme:', error);
     }
+  };
+
+  // Обработчик создания editor instance
+  const handleEditorDidMount = (editor) => {
+    setEditorInstance(editor);
+    console.log('✓ Editor instance captured');
   };
 
   // Нормализация полного текста (frontmatter + content) для корректного сравнения
@@ -621,6 +625,7 @@ function App() {
                   value={editorContent()}
                   onChange={(value) => setEditorContent(value || '')}
                   onMount={handleEditorMount}
+                  editorDidMount={handleEditorDidMount}
                   language="markdown"
                   options={{
                     minimap: { enabled: false },
