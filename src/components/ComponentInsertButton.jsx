@@ -3,7 +3,8 @@
  * @description Кнопка для вставки MDX компонентов с меню
  */
 
-import { createSignal, createEffect, Show, onCleanup, Portal } from 'solid-js';
+import { createSignal, createEffect, Show, onCleanup } from 'solid-js';
+import { Portal } from 'solid-js/web';
 
 /**
  * Компонент кнопки вставки с меню компонентов
