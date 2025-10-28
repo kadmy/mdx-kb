@@ -16,8 +16,9 @@ export function registerMDXCompletions(monaco) {
 
   // Регистрируем для markdown (так как MDX — это расширение Markdown)
   monaco.languages.registerCompletionItemProvider('markdown', {
-    // Возвращаем '<' для автоматического вызова
-    triggerCharacters: ['<'],
+    // НЕ используем triggerCharacters - требуем Ctrl+Space для вызова
+    // Это предотвращает ошибки компиляции при вводе одного '<'
+    triggerCharacters: [],
 
     provideCompletionItems: (model, position) => {
       const textUntilPosition = model.getValueInRange({
@@ -27,15 +28,14 @@ export function registerMDXCompletions(monaco) {
         endColumn: position.column,
       });
 
-      // Ищем паттерн <ComponentName
-      const match = textUntilPosition.match(/<([A-Z]\w*)$/);
+      // Ищем паттерн < + любые буквы (не только заглавные)
+      const match = textUntilPosition.match(/<(\w+)$/);
       if (!match) {
-        // Если нет совпадения - не показываем автодополнение
+        // Нет паттерна <something - не показываем автодополнение
         return { suggestions: [] };
       }
 
-      // Получаем уже введенный префикс (например, "Orig" из "<Orig")
-      const prefix = match[1];
+      const prefix = match[1]; // Введенный префикс
 
       const suggestions = [
         // === Inline компоненты ===

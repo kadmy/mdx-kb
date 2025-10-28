@@ -530,14 +530,15 @@ function App() {
         .content-content {
           display: flex;
           flex-direction: column;
-          flex-grow: 1;
-          max-height: 100vh; /* Большое значение для transition */
+          flex: 0 1 auto; /* Не растягивается по умолчанию */
+          max-height: 50vh; /* Ограничение по умолчанию */
+          overflow: visible; /* Для suggest widget */
         }
 
         /* Когда метаданные свёрнуты — контент занимает почти всю высоту */
         .content-content.expanded {
           max-height: none;
-          flex: 1 1 auto;
+          flex: 1 1 auto; /* Растягивается на всю доступную высоту */
         }
 
         .collapsible-content.collapsed {
@@ -606,7 +607,7 @@ function App() {
             />
           </div>
 
-          <div class="content-section" style={{ display: 'flex', 'flex-direction': 'column', 'margin-top': 'auto' }}>
+          <div class="content-section" style={{ display: 'flex', 'flex-direction': 'column', 'flex-grow': '1' }}>
             <div class="collapsible-header" onClick={() => setContentCollapsed(!contentCollapsed())}>
               <button
                 class="collapsible-toggle"
@@ -634,8 +635,9 @@ function App() {
                     autoClosingBrackets: 'never',
                     autoClosingQuotes: 'never',
                     autoClosingOvertype: 'never',
+                    autoSurround: 'never',
                     suggest: {
-                      showWords: false, // Отключаем слова из документа
+                      showWords: false,
                       snippetsPreventQuickSuggestions: false,
                     },
                   }}
